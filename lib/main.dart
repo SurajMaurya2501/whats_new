@@ -8,6 +8,7 @@ void main() {
   runApp(const WhatsNewApp());
 }
 
+
 class WhatsNewApp extends StatelessWidget {
   const WhatsNewApp({super.key});
 
