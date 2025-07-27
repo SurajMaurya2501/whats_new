@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SplashScreen extends StatefulWidget {
   static const route = '/';
@@ -23,11 +24,20 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Center(
-        child: Text(
-          "What's New",
-          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/app_icon.png'),
+            Text(
+              "What's New",
+              style: GoogleFonts.quicksand(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ),
     );
