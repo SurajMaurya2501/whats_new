@@ -39,6 +39,7 @@ dependencies:
   intl: ^0.20.2
   flutter_animate: ^4.5.2
   google_fonts: ^6.2.1
+  flutter_local_notifications: ^19.4.0
 
 dev_dependencies:
   flutter_test:

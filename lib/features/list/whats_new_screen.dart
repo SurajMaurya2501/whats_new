@@ -82,58 +82,67 @@ class _WhatsNewScreenState extends State<WhatsNewScreen> {
                       final item = entries[i]; //
                       final dateStr = DateFormat.yMMMd().format(item.date);
                       final tag = item.tag == "" ? 'other' : item.tag;
-                      return Card(
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                child: Text((i + 1).toString()),
-                              ),
-                              title: Text(
-                                item.text,
-                                style: AppTypography.bodyText,
-                                overflow: TextOverflow.visible,
-                              ),
-                              trailing: IconButton(
-                                onPressed: () {
-                                  _repo.delete(item).then((value) {
-                                    _reload();
-                                  });
-                                },
-                                icon: Image.asset(
-                                  "assets/delete.png",
-                                  height: 20,
-                                  width: 20,
-                                ),
-                              ),
-                              subtitle: Row(
-                                children: [
-                                  Text(dateStr),
-                                  Container(
-                                    margin: EdgeInsets.only(left: 5),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: getColor(tag),
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 2,
-                                    ),
-                                    child: Text(
-                                      tag,
-                                      style: GoogleFonts.rokkitt(fontSize: 14),
-                                    ),
-                                  ),
-                                ],
+                      return Animate(
+                        effects: [
+                          FadeEffect(
+                            begin: 0.5,
+                            end: 1.0,
+                            delay: Duration(milliseconds: i * 80),
+                            duration: const Duration(milliseconds: 300),
+                          ),
+                          SlideEffect(
+                            begin: const Offset(0, 0.3),
+                            end: Offset.zero,
+                            curve: Curves.easeInOut,
+                            delay: Duration(milliseconds: i * 80),
+                            duration: const Duration(milliseconds: 300),
+                          ),
+                        ],
+                        child: Card(
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              child: Text((i + 1).toString()),
+                            ),
+                            title: Text(
+                              item.text,
+                              style: AppTypography.bodyText,
+                              overflow: TextOverflow.visible,
+                            ),
+                            trailing: IconButton(
+                              onPressed: () {
+                                _repo.delete(item).then((value) {
+                                  _reload();
+                                });
+                              },
+                              icon: Image.asset(
+                                "assets/delete.png",
+                                height: 20,
+                                width: 20,
                               ),
                             ),
-                          )
-                          .animate(delay: (i * 100).ms)
-                          .fadeIn(begin: 0.5, delay: (i * 100).ms)
-                        ..slide(
-                          begin: Offset(0, 0.3),
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                          end: Offset.zero,
-                        );
+                            subtitle: Row(
+                              children: [
+                                Text(dateStr),
+                                Container(
+                                  margin: EdgeInsets.only(left: 5),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: getColor(tag),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 2,
+                                  ),
+                                  child: Text(
+                                    tag,
+                                    style: GoogleFonts.rokkitt(fontSize: 14),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
                     },
                   ),
                 ),
@@ -170,7 +179,7 @@ class _WhatsNewScreenState extends State<WhatsNewScreen> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                "Weekly ${stats.weeklyEntries.values.fold(0, (a, b) => a + b)} days",
+                "Weekly ${stats.weeklyEntries.values.fold(1, (a, b) => a + b)} days",
               ),
             ),
           ),
@@ -178,7 +187,7 @@ class _WhatsNewScreenState extends State<WhatsNewScreen> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                "Monthly ${stats.monthlyEntries.values.fold(0, (a, b) => a + b)} days",
+                "Monthly ${stats.monthlyEntries.values.fold(1, (a, b) => a + b)} days",
               ),
             ),
           ),
