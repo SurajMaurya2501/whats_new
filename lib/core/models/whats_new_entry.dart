@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:ui';
-
 
 class WhatsNewEntry {
   final String id;
@@ -24,7 +22,7 @@ class WhatsNewEntry {
     );
   }
 
- Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
     'id': id,
     'date': date.toIso8601String(),
     'text': text,

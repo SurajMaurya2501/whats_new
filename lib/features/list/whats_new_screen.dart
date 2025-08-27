@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:whats_new/core/constants/app_typography.dart';
 import 'package:whats_new/core/models/stats_model.dart';
+import 'package:whats_new/core/providers/theme_provider.dart';
 import 'package:whats_new/core/storage/entires_repository.dart';
 import 'package:whats_new/widgets/empty_.dart';
 import '../../core/models/whats_new_entry.dart';
@@ -35,10 +37,19 @@ class _WhatsNewScreenState extends State<WhatsNewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final today = DateFormat.yMMMMd().format(DateTime.now());
-
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
-      appBar: AppBar(title: const Text("What's New")),
+      appBar: AppBar(
+        title: const Text("What's New"),
+        actions: [
+          Switch(
+            value: themeProvider.themeMode == ThemeMode.dark,
+            onChanged: (_) {
+              themeProvider.toggleTheme();
+            },
+          ),
+        ],
+      ),
       body: FutureBuilder<List<WhatsNewEntry>>(
         future: _future,
         builder: (context, snap) {
@@ -65,85 +76,103 @@ class _WhatsNewScreenState extends State<WhatsNewScreen> {
               children: [
                 _buildStatsCard(stats),
                 Expanded(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.all(12),
-                    itemCount: entries.length,
-                    itemBuilder: (context, i) {
-                      //if (i == 0) {
-                      //  return Padding(
-                      //    padding: const EdgeInsets.only(bottom: 12),
-                      //    child: Text(
-                      //      "Today: $today\nTotal: ${entries.length} items",
-                      //      style: Theme.of(context).textTheme.bodySmall,
-                      //    ),
-                      //  );
-                      //}
-                      final item = entries[i]; //
-                      final dateStr = DateFormat.yMMMd().format(item.date);
-                      final tag = item.tag == "" ? 'other' : item.tag;
-                      return Animate(
-                        effects: [
-                          FadeEffect(
-                            begin: 0.5,
-                            end: 1.0,
-                            delay: Duration(milliseconds: i * 80),
-                            duration: const Duration(milliseconds: 300),
-                          ),
-                          SlideEffect(
-                            begin: const Offset(0, 0.3),
-                            end: Offset.zero,
-                            curve: Curves.easeInOut,
-                            delay: Duration(milliseconds: i * 80),
-                            duration: const Duration(milliseconds: 300),
-                          ),
-                        ],
-                        child: Card(
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              child: Text((i + 1).toString()),
-                            ),
-                            title: Text(
-                              item.text,
-                              style: AppTypography.bodyText,
-                              overflow: TextOverflow.visible,
-                            ),
-                            trailing: IconButton(
-                              onPressed: () {
-                                _repo.delete(item).then((value) {
-                                  _reload();
-                                });
-                              },
-                              icon: Image.asset(
-                                "assets/delete.png",
-                                height: 20,
-                                width: 20,
-                              ),
-                            ),
-                            subtitle: Row(
-                              children: [
-                                Text(dateStr),
-                                Container(
-                                  margin: EdgeInsets.only(left: 5),
-                                  decoration: BoxDecoration(
+                  child: AnimationLimiter(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.all(12),
+                      itemCount: entries.length,
+                      itemBuilder: (context, i) {
+                        final item = entries[i];
+                        final dateStr = DateFormat.yMMMd().format(item.date);
+                        final tag = item.tag == "" ? 'other' : item.tag;
+                        return AnimationConfiguration.staggeredList(
+                          position: i,
+                          duration: const Duration(milliseconds: 375),
+                          child: SlideAnimation(
+                            verticalOffset: 50.0,
+                            child: FadeInAnimation(
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(vertical: 6),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.pinkAccent,
+                                      Colors.blueAccent,
+                                    ],
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.pink.withAlpha(150),
+                                      blurRadius: 1,
+                                      spreadRadius: 1,
+                                      offset: Offset(-1, -1),
+                                    ),
+                                    BoxShadow(
+                                      color: Colors.blue.withAlpha(150),
+                                      blurRadius: 1,
+                                      spreadRadius: 1,
+                                      offset: Offset(1, 1),
+                                    ),
+                                  ],
+                                ),
+                                child: Card(
+                                  margin: const EdgeInsets.all(2),
+                                  shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
-                                    color: getColor(tag),
                                   ),
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 2,
-                                  ),
-                                  child: Text(
-                                    tag,
-                                    style: GoogleFonts.rokkitt(fontSize: 14),
+                                  child: ListTile(
+                                    title: Text(
+                                      item.text,
+                                      style: AppTypography.bodyText,
+                                      overflow: TextOverflow.visible,
+                                    ),
+                                    trailing: IconButton(
+                                      onPressed: () {
+                                        _repo.delete(item).then((value) {
+                                          _reload();
+                                        });
+                                      },
+                                      icon: const Icon(
+                                        Icons.delete_outline,
+                                        color: Colors.redAccent,
+                                      ),
+                                    ),
+                                    subtitle: Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Row(
+                                        children: [
+                                          Text(dateStr),
+                                          const SizedBox(width: 10),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: getColor(tag),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 2,
+                                            ),
+                                            child: Text(
+                                              tag,
+                                              style: GoogleFonts.rokkitt(
+                                                fontSize: 14,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                 ),
               ],
@@ -164,30 +193,41 @@ class _WhatsNewScreenState extends State<WhatsNewScreen> {
 
   Widget _buildStatsCard(Stats stats) {
     return Padding(
-      padding: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text("🔥${stats.currentStreak}"),
-            ),
-          ),
-          // Text("🏆${stats.longestStreak}"),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                "Weekly ${stats.weeklyEntries.values.fold(1, (a, b) => a + b)} days",
+          Expanded(
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  children: [
+                    Text(
+                      '🔥',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 4),
+                    Text('${stats.currentStreak} Day Streak'),
+                  ],
+                ),
               ),
             ),
           ),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                "Monthly ${stats.monthlyEntries.values.fold(1, (a, b) => a + b)} days",
+          const SizedBox(width: 12),
+          Expanded(
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  children: [
+                    Text(
+                      '🏆',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 4),
+                    Text('${stats.longestStreak} Day Record'),
+                  ],
+                ),
               ),
             ),
           ),

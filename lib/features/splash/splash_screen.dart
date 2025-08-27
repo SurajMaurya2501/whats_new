@@ -29,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/app_icon.png'),
+            Image.asset('assets/whats_new_logo.png'),
             Text(
               "What's New",
               style: GoogleFonts.quicksand(

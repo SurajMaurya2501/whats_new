@@ -28,30 +28,47 @@ class StatsCalculator {
       );
     }
 
-    // Sort by date descending
-    entries.sort((a, b) => b.date.compareTo(a.date));
+    // Use a set to store unique dates, then sort them descending
+    final uniqueDates = entries
+        .map((e) => DateTime(e.date.year, e.date.month, e.date.day))
+        .toSet()
+        .toList();
+    uniqueDates.sort((a, b) => b.compareTo(a));
 
-    // Streak calculation
-    int currentStreak = 0;
     int longestStreak = 0;
-    DateTime? prevDay;
-
-    for (var e in entries) {
-      final day = DateTime(e.date.year, e.date.month, e.date.day);
-      if (prevDay == null) {
-        currentStreak = 1;
-      } else {
-        final diff = prevDay.difference(day).inDays;
-        if (diff == 1) {
-          currentStreak++;
-        } else if (diff > 1) {
-          longestStreak = currentStreak > longestStreak ? currentStreak : longestStreak;
-          currentStreak = 1; // reset
+    int currentStreak = 0;
+    if (uniqueDates.isNotEmpty) {
+      int streak = 1;
+      for (int i = 0; i < uniqueDates.length - 1; i++) {
+        if (uniqueDates[i].difference(uniqueDates[i + 1]).inDays == 1) {
+          streak++;
+        } else {
+          if (streak > longestStreak) {
+            longestStreak = streak;
+          }
+          streak = 1;
         }
       }
-      prevDay = day;
+      if (streak > longestStreak) {
+        longestStreak = streak;
+      }
+
+      final today = DateTime.now();
+      final todayDate = DateTime(today.year, today.month, today.day);
+      final yesterdayDate = todayDate.subtract(const Duration(days: 1));
+
+      if (uniqueDates.first.isAtSameMomentAs(todayDate) ||
+          uniqueDates.first.isAtSameMomentAs(yesterdayDate)) {
+        currentStreak = 1;
+        for (int i = 0; i < uniqueDates.length - 1; i++) {
+          if (uniqueDates[i].difference(uniqueDates[i + 1]).inDays == 1) {
+            currentStreak++;
+          } else {
+            break;
+          }
+        }
+      }
     }
-    longestStreak = currentStreak > longestStreak ? currentStreak : longestStreak;
 
     // Weekly entries (Mon-Sun)
     final Map<String, int> weekly = {};
@@ -88,8 +105,18 @@ class StatsCalculator {
 
   static String _monthName(int month) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return months[month - 1];
   }

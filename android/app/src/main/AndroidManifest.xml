@@ -7,9 +7,9 @@
 
 
     <application
-        android:label="whats_new"
+        android:label="Whats New"
         android:name="${applicationName}"
-        android:icon="@mipmap/app_icon">
+        android:icon="@mipmap/whats_new_icon_playstore">
 
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver" />
 
